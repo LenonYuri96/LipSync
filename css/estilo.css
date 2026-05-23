@@ -1,0 +1,65 @@
+/* -----------------------------------------------
+   ESTILOS DO PERSONAGEM - AJUSTÁVEL
+----------------------------------------------- */
+
+:root {
+  /* Ajuste estas porcentagens conforme o seu desenho */
+  --olhos-top: 1%;
+  --olhos-width: 40%; /* largura da imagem dos olhos (par) */
+  --boca-bottom: 4%;
+  --boca-width: 25%;
+}
+
+.personagem-container {
+  position: relative;
+  width: min(500px, 90vw);
+  aspect-ratio: 1 / 1; /* proporção quadrada */
+  margin: 0 auto;
+}
+
+.personagem-container img {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Olhos (agora uma única imagem com o par) */
+.olhos {
+  width: var(--olhos-width);
+  top: var(--olhos-top);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Boca */
+.boca {
+  width: var(--boca-width);
+  bottom: var(--boca-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Ajustes para telas pequenas */
+@media (max-width: 576px) {
+  .personagem-container {
+    width: 80vw;
+  }
+  :root {
+    --olhos-width: 45%;
+    --boca-width: 28%;
+  }
+}
+
+/* Barra de progresso */
+.progress {
+  background-color: #e9ecef;
+  border-radius: 20px;
+}
+.progress-bar {
+  transition: width 0.1s ease;
+  border-radius: 20px;
+}
