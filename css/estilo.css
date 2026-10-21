@@ -1,65 +1,316 @@
-/* -----------------------------------------------
-   ESTILOS DO PERSONAGEM - AJUSTÁVEL
------------------------------------------------ */
+/* ==========================================================================
+   LIP SYNC 2D — CSS CONSOLIDADO E CORRIGIDO
+   ========================================================================== */
 
 :root {
-  /* Ajuste estas porcentagens conforme o seu desenho */
-  --olhos-top: 1%;
-  --olhos-width: 40%; /* largura da imagem dos olhos (par) */
-  --boca-bottom: 4%;
-  --boca-width: 25%;
+  /* ---------- Cores ---------- */
+  --cor-fundo: #f4f6f9;
+  --cor-card: #ffffff;
+  --cor-primaria: #0d6efd;
+  --cor-sucesso: #198754;
+  --cor-alerta: #ffc107;
+  --cor-perigo: #dc3545;
+  --cor-borda: #dee2e6;
+  --cor-texto: #212529;
+
+  /* ---------- CONFIGURAÇÃO PADRÃO OFICIAL (CALIBRADA) ---------- */
+  --olhos-top: 25.5%;
+  --olhos-left: 50%;
+  --olhos-width: 65%;
+
+  --boca-top: 31%;
+  --boca-left: 50%;
+  --boca-width: 65%;
+
+  /* ---------- Física / transições ---------- */
+  --mandibula-abertura: 1;
+  --suavidade-transicao: 0.08s;
+  --tempo-respirar: 4.8s;
+  --tempo-falar: 0.38s;
+  --tempo-fade-boca: 0.075s;
+  --palco-tamanho: 380px;
+  --palco-max-vw: 90vw;
+}
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
+body {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0.75rem;
+}
+
+/* ==========================================================================
+   CARD PRINCIPAL
+   ========================================================================== */
+.card-lipsync {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 1.25rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.125);
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+  margin: auto;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card-header-custom {
+  background: #1e2229;
+  color: #ffffff;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   PALCO DO PERSONAGEM
+   ========================================================================== */
+.palco-personagem,
 .personagem-container {
   position: relative;
-  width: min(500px, 90vw);
-  aspect-ratio: 1 / 1; /* proporção quadrada */
-  margin: 0 auto;
+  width: 100%;
+  max-width: min(var(--palco-max-vw), var(--palco-tamanho));
+  aspect-ratio: 1 / 1;
+  margin: 0.5rem auto 1rem auto;
+  background: radial-gradient(
+    circle,
+    rgba(240, 243, 248, 0.8) 0%,
+    rgba(225, 232, 240, 0.4) 70%,
+    transparent 100%
+  );
+  border-radius: 1rem;
+  overflow: hidden;
+  transform-origin: center bottom;
+  animation: anim-respiracao var(--tempo-respirar) ease-in-out infinite;
 }
 
+.palco-personagem.modo-fala,
+.personagem-container.falando {
+  animation: anim-articulacao-corpo var(--tempo-falar) ease-in-out infinite
+    alternate;
+}
+
+/* Base de TODAS as imagens do palco */
+.palco-personagem img,
 .personagem-container img {
-  position: absolute;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
   pointer-events: none;
   user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* Olhos (agora uma única imagem com o par) */
+/* ---------- 1. Corpo (base) ---------- */
+#camada-corpo,
+#corpo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 10;
+}
+
+/* ---------- 2. Olhos ---------- */
+#camada-olhos,
+#olhos,
 .olhos {
-  width: var(--olhos-width);
-  top: var(--olhos-top);
-  left: 50%;
-  transform: translateX(-50%);
+  position: absolute !important;
+  top: var(--olhos-top) !important;
+  left: var(--olhos-left) !important;
+  width: var(--olhos-width) !important;
+  height: auto !important;
+  transform: translateX(-50%) !important;
+  object-fit: contain;
+  z-index: 20;
+  transition: opacity 0.05s ease-out;
 }
 
-/* Boca */
-.boca {
-  width: var(--boca-width);
-  bottom: var(--boca-bottom);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
+/* ---------- 3. Boca (container) — CORRIGIDO COM POSITION ABSOLUTE ---------- */
+#container-boca,
+#boca-container,
+.boca-container {
+  position: absolute !important; /* ESSENCIAL: impede de ir para o topo-esquerdo */
+  top: var(--boca-top) !important;
+  left: var(--boca-left) !important;
+  width: var(--boca-width) !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%) scale(1, var(--mandibula-abertura, 1)) !important;
+  transform-origin: center 25%;
+  z-index: 30;
+  pointer-events: none;
+  transition: transform var(--suavidade-transicao)
+    cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
 }
 
-/* Ajustes para telas pequenas */
+/* ---------- Camadas de crossfade da boca ---------- */
+.camada-boca,
+.boca-camada {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity var(--tempo-fade-boca) ease-in-out;
+  will-change: opacity;
+}
+
+.camada-boca.ativa,
+.boca-camada.ativa {
+  opacity: 1;
+  z-index: 32;
+}
+
+/* ==========================================================================
+   ANIMAÇÕES DE VIDA
+   ========================================================================== */
+@keyframes anim-respiracao {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.005, 1.008);
+  }
+}
+
+@keyframes anim-articulacao-corpo {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  100% {
+    transform: translateY(-2px) scale(1.008, 1.012);
+  }
+}
+
+/* ==========================================================================
+   PAINEL DE ÁUDIO / VU METER
+   ========================================================================== */
+.painel-audio {
+  background: #f8fafc;
+  border: 1px solid var(--cor-borda);
+  border-radius: 0.75rem;
+  padding: 0.875rem;
+  margin-bottom: 0.875rem;
+}
+
+.medidor-container {
+  position: relative;
+  height: 12px;
+  background-color: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.medidor-barra {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #198754 0%, #ffc107 70%, #dc3545 100%);
+  border-radius: 6px;
+  transition: width 0.05s ease;
+}
+
+.marcador-threshold {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #000000;
+  z-index: 5;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   BALÃO DE TRANSCRIÇÃO
+   ========================================================================== */
+.balao-transcricao {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.badge-transcricao {
+  background: #212529;
+  color: #ffffff;
+  padding: 0.4rem 0.85rem;
+  border-radius: 50rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  max-width: 90%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-transcricao.visivel {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   CARDS DE COMANDO
+   ========================================================================== */
+.card-comando {
+  background: #ffffff;
+  border: 1px solid var(--cor-borda);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.card-comando small {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  display: block;
+}
+
+.card-comando strong {
+  font-size: 0.875rem;
+  display: block;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE
+   ========================================================================== */
 @media (max-width: 576px) {
+  body {
+    padding: 0.5rem;
+  }
+  .card-lipsync {
+    border-radius: 1rem;
+  }
+  .palco-personagem,
   .personagem-container {
-    width: 80vw;
+    max-width: min(88vw, 320px);
   }
-  :root {
-    --olhos-width: 45%;
-    --boca-width: 28%;
-  }
-}
-
-/* Barra de progresso */
-.progress {
-  background-color: #e9ecef;
-  border-radius: 20px;
-}
-.progress-bar {
-  transition: width 0.1s ease;
-  border-radius: 20px;
 }
